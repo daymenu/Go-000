@@ -1,0 +1,29 @@
+syntax="proto3";
+
+option go_package = "github.com/daymenu/Go-000/Week01/example/grpc/model";
+
+package model;
+
+service CircularService {
+    rpc Area(AreaRequest) returns(AreaResponse) {};
+}
+
+message Point {
+    double x = 1;
+    double y = 2;
+}
+
+message Circular {
+    Point dot = 1;
+    double radius = 2;
+}
+
+message AreaRequest {
+    string requestId = 1;
+    Circular circular = 2;
+}
+
+message AreaResponse {
+    int32 code = 1;
+    double area = 2;
+}

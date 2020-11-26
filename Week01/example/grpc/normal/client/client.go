@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/daymenu/Go-000/Week01/example/grpc/model"
+	"github.com/daymenu/Go-000/Week01/example/grpc/normal/model"
 	"google.golang.org/grpc"
 )
 
@@ -24,7 +25,12 @@ func main() {
 	client := model.NewCircularServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	area, err := client.Area(ctx, &model.AreaRequest{RequestId: "2233", Circular: &model.Circular{Dot: &model.Point{X: 1.1, Y: 1.1}, Radius: 1.1}})
+	circularPoint := &model.Point{X: 1.1, Y: 1.1}
+	radius := 1.1
+	resp, err := client.Area(ctx, &model.AreaRequest{RequestId: "2233", Circular: &model.Circular{Dot: circularPoint, Radius: radius}})
 
-	fmt.Println(area, err)
+	if resp.Code != http.StatusOK {
+		fmt.Println(err)
+	}
+	fmt.Printf("圆点为：(%.2f,%.2f)\n圆的半径为： %.2f\n圆的面积：%.f \n", circularPoint.X, circularPoint.Y, radius, resp.GetArea())
 }

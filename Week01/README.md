@@ -9,6 +9,3 @@
 #班级:
 #作业&总结链接:https://github.com/daymenu/Go-000/tree/main/Week01
 
-
-问题地址：
-[https://shimo.im/docs/x8dxHkQRcdCHX8j3/read](https://shimo.im/docs/x8dxHkQRcdCHX8j3/read)

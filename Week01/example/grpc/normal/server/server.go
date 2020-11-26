@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"log"
 	"math"
 	"net"
 
 	"google.golang.org/grpc"
 
-	"github.com/daymenu/Go-000/Week01/example/grpc/model"
+	"github.com/daymenu/Go-000/Week01/example/grpc/normal/model"
 )
 
 type circularService struct {
@@ -19,8 +19,12 @@ type circularService struct {
 func (c *circularService) Area(ctx context.Context, request *model.AreaRequest) (*model.AreaResponse, error) {
 	resp := new(model.AreaResponse)
 	resp.Code = 200
-	resp.Area = request.Circular.GetRadius() * math.Pi
-	fmt.Println("client is call,requestId:", request.GetRequestId())
+	resp.Area = request.Circular.GetRadius() * request.Circular.GetRadius() * math.Pi
+	rjson, err := json.Marshal(request)
+	if err != nil {
+		log.Printf("request json encode failed")
+	}
+	log.Printf("%s:%s", request.RequestId, string(rjson))
 	return resp, nil
 }
 func newServer() *circularService {

@@ -1,0 +1,6 @@
+version: '3'
+services:
+ mysql_service:
+  build: ./docker/mysql/
+  ports: 
+    - "3306:3306"

@@ -1,0 +1,29 @@
+syntax="proto3";
+
+// protoc --go_out=. --go_opt=paths=source_relative .\movie.proto
+
+option go_package = "github.com/daymenu/Go-000/Week02/work/model";
+
+package model;
+
+
+message Moive {
+   int64 id  = 1;
+   string name =2;
+   string to_star  = 3;
+   int64 love = 4;
+}
+
+message SearchMoive {
+    Moive moive = 1;
+    repeated Moive loveMoive = 2;
+}
+
+message SearchMoiveRequest {
+    string requestId = 1;
+}
+
+message SearchMoiveResponse {
+    int32 code = 1;
+    SearchMoive SearchMoive = 2;
+}

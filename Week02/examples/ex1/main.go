@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"regexp"
 )
 
 type errorString string
@@ -26,4 +27,5 @@ func main() {
 	if ErrStructType == errors.New("EOF") {
 		fmt.Println("ex2: Struct Type Error")
 	}
+	regexp.Compile("ddd")
 }

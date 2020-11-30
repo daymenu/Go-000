@@ -21,10 +21,13 @@ func FindMoiveByName(name string) (*model.Moive, error) {
 	moiveSQL := "SELECT * FROM moive WHERE `name`= ?"
 	moive := &model.Moive{}
 	if err := db.QueryRow(moiveSQL, name).Scan(&moive.Id, &moive.Name, &moive.ToStar); err != nil {
-		fmt.Println(err)
-		return nil, err
+		// 1. 将错误吞掉
+		// return nil, nil
+		// 2. 不wrap直接返回原始错误
+		// return nil, err
+		// 3. 使用wrap后返回, 最后选择使用第三种
+		return nil, fmt.Errorf("没有找到 《%s》 这个影片: %w", name, err)
 	}
-
 	return moive, nil
 }
 

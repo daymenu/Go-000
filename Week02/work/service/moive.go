@@ -11,6 +11,8 @@ func FindMoiveByName(name string) (*model.Moive, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	moive.Name += "-宇宙超级无敌动作影片公司"
 	return moive, nil
 }
 

@@ -4,25 +4,31 @@ option go_package = "github.com/daymenu/Go-000/Week01/example/grpc/model";
 
 package model;
 
+// 定义一个圆形服务
 service CircularService {
+	// 定义计算面积接口
     rpc Area(AreaRequest) returns(AreaResponse) {};
 }
 
+// 定义一个点
 message Point {
     double x = 1;
     double y = 2;
 }
 
+// 定义圆
 message Circular {
     Point dot = 1;
     double radius = 2;
 }
 
+// 定义请求消息
 message AreaRequest {
     string requestId = 1;
     Circular circular = 2;
 }
 
+// 定义响应消息
 message AreaResponse {
     int32 code = 1;
     double area = 2;

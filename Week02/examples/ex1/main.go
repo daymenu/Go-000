@@ -17,7 +17,7 @@ func New(text string) error {
 	return errorString(text)
 }
 
-// ErrNameType 自定义EOF
+// ErrNamed:Type 自定义EOF
 var ErrNamedType = New("EOF")
 
 // ErrStructType 根据errors包新建错误

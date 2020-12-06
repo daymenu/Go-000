@@ -13,6 +13,7 @@ import (
 
 func main() {
 	var opts []grpc.DialOption
+
 	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts, grpc.WithBlock())
 	conn, err := grpc.Dial("localhost:9090", opts...)

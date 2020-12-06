@@ -8,6 +8,8 @@ import (
 
 func main() {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 3*time.Second)
+	name := "name"
+	ctx = context.WithValue(ctx, name, "lili")
 	go sellMoive(ctx, "一路向西")
 
 	select {
@@ -18,7 +20,8 @@ func main() {
 }
 
 func sellMoive(ctx context.Context, moiveName string) {
-	fmt.Println("start sell moive")
+	name := ctx.Value("name")
+	fmt.Println("start sell moive, name:", name)
 	for {
 		select {
 		case <-ctx.Done():

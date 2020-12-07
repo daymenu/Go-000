@@ -25,7 +25,7 @@ func (c *circularService) Area(ctx context.Context, request *model.CircularServi
 		log.Printf("request json encode failed")
 	}
 	log.Printf("%s:%s", request.RequestId, string(rjson))
-	return resp, nil
+	return nil
 }
 func newServer() *circularService {
 	s := &circularService{}

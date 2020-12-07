@@ -17,7 +17,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CircularServiceClient interface {
-	Area(ctx context.Context, in *AreaRequest, opts ...grpc.CallOption) (*AreaResponse, error)
+	// 定义计算面积接口
+	Area(ctx context.Context, in *AreaRequest, opts ...grpc.CallOption) (CircularService_AreaClient, error)
 }
 
 type circularServiceClient struct {
@@ -28,20 +29,44 @@ func NewCircularServiceClient(cc grpc.ClientConnInterface) CircularServiceClient
 	return &circularServiceClient{cc}
 }
 
-func (c *circularServiceClient) Area(ctx context.Context, in *AreaRequest, opts ...grpc.CallOption) (*AreaResponse, error) {
-	out := new(AreaResponse)
-	err := c.cc.Invoke(ctx, "/model.CircularService/Area", in, out, opts...)
+func (c *circularServiceClient) Area(ctx context.Context, in *AreaRequest, opts ...grpc.CallOption) (CircularService_AreaClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_CircularService_serviceDesc.Streams[0], "/model.CircularService/Area", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &circularServiceAreaClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type CircularService_AreaClient interface {
+	Recv() (*AreaResponse, error)
+	grpc.ClientStream
+}
+
+type circularServiceAreaClient struct {
+	grpc.ClientStream
+}
+
+func (x *circularServiceAreaClient) Recv() (*AreaResponse, error) {
+	m := new(AreaResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // CircularServiceServer is the server API for CircularService service.
 // All implementations must embed UnimplementedCircularServiceServer
 // for forward compatibility
 type CircularServiceServer interface {
-	Area(context.Context, *AreaRequest) (*AreaResponse, error)
+	// 定义计算面积接口
+	Area(*AreaRequest, CircularService_AreaServer) error
 	mustEmbedUnimplementedCircularServiceServer()
 }
 
@@ -49,8 +74,8 @@ type CircularServiceServer interface {
 type UnimplementedCircularServiceServer struct {
 }
 
-func (UnimplementedCircularServiceServer) Area(context.Context, *AreaRequest) (*AreaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Area not implemented")
+func (UnimplementedCircularServiceServer) Area(*AreaRequest, CircularService_AreaServer) error {
+	return status.Errorf(codes.Unimplemented, "method Area not implemented")
 }
 func (UnimplementedCircularServiceServer) mustEmbedUnimplementedCircularServiceServer() {}
 
@@ -65,33 +90,37 @@ func RegisterCircularServiceServer(s grpc.ServiceRegistrar, srv CircularServiceS
 	s.RegisterService(&_CircularService_serviceDesc, srv)
 }
 
-func _CircularService_Area_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AreaRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _CircularService_Area_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(AreaRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(CircularServiceServer).Area(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/model.CircularService/Area",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CircularServiceServer).Area(ctx, req.(*AreaRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(CircularServiceServer).Area(m, &circularServiceAreaServer{stream})
+}
+
+type CircularService_AreaServer interface {
+	Send(*AreaResponse) error
+	grpc.ServerStream
+}
+
+type circularServiceAreaServer struct {
+	grpc.ServerStream
+}
+
+func (x *circularServiceAreaServer) Send(m *AreaResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 var _CircularService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "model.CircularService",
 	HandlerType: (*CircularServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "Area",
-			Handler:    _CircularService_Area_Handler,
+			StreamName:    "Area",
+			Handler:       _CircularService_Area_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "hello.proto",
+	Metadata: "area.proto",
 }

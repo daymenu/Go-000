@@ -1,4 +1,4 @@
-rpcpackage main
+package main
 
 import (
 	"context"

@@ -18,18 +18,18 @@ import (
 // 该服务是一个影片服务
 // 主要有两大服务 影片服务及广告服务
 func main() {
-	// 启动影片服务
+	startErrGroup, _ := errgroup.WithContext(context.Background())
 	ctx, cancel := context.WithCancel(context.Background())
+
+	// 启动影片服务
 	moiveServer := moive.Server{
 		Server: &http.Server{
 			Addr: ":9090",
 		},
 	}
-	var startErrGroup errgroup.Group
 	startErrGroup.Go(func() error {
 		return moiveServer.Serve(ctx)
 	})
-
 	log.Println("启动影片服务")
 
 	// 启动广告服务
@@ -60,7 +60,7 @@ func main() {
 	quitCtx, quitCancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer quitCancel()
 
-	var stopErrGroup errgroup.Group
+	stopErrGroup, _ := errgroup.WithContext(context.Background())
 	stopErrGroup.Go(func() error {
 		return adServer.Shutdown(quitCtx)
 	})

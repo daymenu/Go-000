@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
-	"log"
-	"net/http"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/daymenu/Go-000/Week03/work/ad"
 	"github.com/daymenu/Go-000/Week03/work/moive"
@@ -18,60 +16,37 @@ import (
 // 该服务是一个影片服务
 // 主要有两大服务 影片服务及广告服务
 func main() {
-	startErrGroup, _ := errgroup.WithContext(context.Background())
+
+	moiveErrGroup, _ := errgroup.WithContext(context.Background())
 	ctx, cancel := context.WithCancel(context.Background())
-
-	// 启动影片服务
-	moiveServer := moive.Server{
-		Server: &http.Server{
-			Addr: ":9090",
-		},
-	}
-	startErrGroup.Go(func() error {
-		return moiveServer.Serve(ctx)
-	})
-	log.Println("启动影片服务")
-
 	// 启动广告服务
-	adServer := ad.Server{
-		Server: &http.Server{
-			Addr: ":9091",
-		},
-	}
-	startErrGroup.Go(func() error {
-		return adServer.Serve(ctx)
+	moiveErrGroup.Go(func() error {
+		err := ad.AppServe(ctx)
+		fmt.Println("ad quit")
+		return err
 	})
-	log.Println("启动广告服务")
-	// 等待所有服务启动
-	if err := startErrGroup.Wait(); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("所有服务已经启动")
-
-	// 处理退出信号
-	quit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	cancel()
-
-	log.Println("接受到退出信号")
-
-	quitCtx, quitCancel := context.WithTimeout(context.Background(), 60*time.Second)
-	defer quitCancel()
-
-	stopErrGroup, _ := errgroup.WithContext(context.Background())
-	stopErrGroup.Go(func() error {
-		return adServer.Shutdown(quitCtx)
+	// 启动影片服务
+	moiveErrGroup.Go(func() error {
+		err := moive.AppServe(ctx)
+		fmt.Println("moive quit")
+		return err
 	})
 
-	stopErrGroup.Go(func() error {
-		return moiveServer.Shutdown(quitCtx)
+	// 监听退出信号
+	moiveErrGroup.Go(func() error {
+		quit := make(chan os.Signal)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		// 调用应用程序 context 取消所有程序
+		cancel()
+		fmt.Println("signal quit")
+		return nil
 	})
 
-	if err := stopErrGroup.Wait(); err != nil {
-		log.Fatal(err)
+	if err := moiveErrGroup.Wait(); err != nil {
+		fmt.Println("影片站点出错了:", err)
 	}
 
-	log.Println("所有服务已经退出")
+	fmt.Println("影片站点所有服务已经退出了....")
+
 }

@@ -2,9 +2,12 @@ package moive
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net"
+	"math/rand"
 	"net/http"
+	"strings"
+	"sync"
 
 	"github.com/daymenu/Go-000/Week03/work/code"
 )
@@ -22,36 +25,63 @@ func (err moiveErr) UnWrap() error {
 	return err.err
 }
 
-// Server 影片服务
-type Server struct {
-	Server *http.Server
+// Moive 影片实体
+type Moive struct {
+	Name  string
+	Actor string
 }
 
-// Serve 启动服务
-func (m *Server) Serve(ctx context.Context) error {
+// moivedService 广告
+type moivedService struct {
+	moives []Moive
+	sync.RWMutex
+}
 
-	addr := m.Server.Addr
-	if addr == "" {
-		addr = ":http"
+func (m *moivedService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	form := r.Form
+	action := strings.ToUpper(r.Form.Get("action"))
+	switch action {
+	case "GET":
+		m.RLock()
+		defer m.RUnlock()
+		if len(m.moives) == 0 {
+			fmt.Fprintf(w, "主人肾亏，还没有添加影片")
+			return
+		}
+
+		l := len(m.moives)
+		index := rand.Intn(l)
+		moive := m.moives[index]
+		fmt.Fprintf(w, "%s: %s", moive.Name, moive.Actor)
+	case "POST":
+		name, adWords := form.Get("name"), form.Get("actor")
+		m.Lock()
+		defer m.Unlock()
+		mi := Moive{Name: name, Actor: adWords}
+		m.moives = append(m.moives, mi)
+
+		fmt.Fprintf(w, "添加成功")
 	}
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		return &moiveErr{err: err, code: code.ServerErrCode}
+}
+
+var moiveSer moivedService
+
+// AppServe 启动服务
+func AppServe(ctx context.Context) error {
+	s := http.Server{
+		Addr:    ":9091",
+		Handler: &moiveSer,
 	}
-	go m.Server.Serve(ln)
-	return nil
-}
 
-func (m *Server) startLog() error {
-	err := fmt.Errorf("日志启动错误")
-	return &moiveErr{err: err, code: code.LogErrCode}
-}
+	go func() {
+		<-ctx.Done()
+		s.Shutdown(ctx)
+	}()
 
-// Shutdown 服务退出
-func (m *Server) Shutdown(ctx context.Context) error {
-	// 执行自己的退出操作
-	fmt.Println("moive server quit")
-
-	// 执行server的退出
-	return m.Server.Shutdown(ctx)
+	err := s.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return moiveErr{err: err, code: code.ServerErrCode}
 }

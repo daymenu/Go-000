@@ -2,9 +2,12 @@ package ad
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"net"
+	"math/rand"
 	"net/http"
+	"strings"
+	"sync"
 
 	"github.com/daymenu/Go-000/Week03/work/code"
 )
@@ -22,34 +25,62 @@ func (err adErr) UnWrap() error {
 	return err.err
 }
 
-// Server 影片服务
-type Server struct {
-	Server *http.Server
+// Ad 广告实体
+type Ad struct {
+	Name    string
+	ADWords string
 }
 
-// Serve 启动服务
-func (m *Server) Serve(ctx context.Context) error {
-	addr := m.Server.Addr
-	if addr == "" {
-		addr = ":http"
+// adService 广告
+type adService struct {
+	ads []Ad
+	sync.RWMutex
+}
+
+func (ad *adService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	form := r.Form
+	action := strings.ToUpper(r.Form.Get("action"))
+	switch action {
+	case "GET":
+		ad.RLock()
+		defer ad.RUnlock()
+		if len(ad.ads) == 0 {
+			fmt.Fprintf(w, "史莱克学院 广告招商")
+			return
+		}
+
+		l := len(ad.ads)
+		index := rand.Intn(l)
+		moive := ad.ads[index]
+		fmt.Fprintf(w, "%s: %s", moive.Name, moive.ADWords)
+	case "POST":
+		name, adWords := form.Get("name"), form.Get("adWords")
+		ad.Lock()
+		defer ad.Unlock()
+		a := Ad{Name: name, ADWords: adWords}
+		ad.ads = append(ad.ads, a)
+		fmt.Fprintf(w, "添加成功")
 	}
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		return &adErr{err: err, code: code.ServerErrCode}
+}
+
+var ads adService
+
+// AppServe 启动服务
+func AppServe(ctx context.Context) error {
+	s := http.Server{
+		Addr:    ":9090",
+		Handler: &ads,
 	}
-	go m.Server.Serve(ln)
-	return nil
-}
 
-func (m *Server) startLog() error {
-	err := fmt.Errorf("日志启动错误")
-	return &adErr{err: err, code: code.LogErrCode}
-}
+	go func() {
+		<-ctx.Done()
+		s.Shutdown(ctx)
+	}()
 
-// Shutdown 服务退出
-func (m *Server) Shutdown(ctx context.Context) error {
-	// 执行自己的退出操作
-	fmt.Println("ad server quit")
-	// 执行server的退出
-	return m.Server.Shutdown(ctx)
+	err := s.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return adErr{err: err, code: code.ServerErrCode}
 }

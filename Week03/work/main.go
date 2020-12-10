@@ -22,12 +22,14 @@ func main() {
 	// 启动广告服务
 	moiveErrGroup.Go(func() error {
 		err := ad.AppServe(ctx)
+		cancel()
 		fmt.Println("ad quit")
 		return err
 	})
 	// 启动影片服务
 	moiveErrGroup.Go(func() error {
 		err := moive.AppServe(ctx)
+		cancel()
 		fmt.Println("moive quit")
 		return err
 	})
@@ -36,14 +38,19 @@ func main() {
 	moiveErrGroup.Go(func() error {
 		quit := make(chan os.Signal)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-		// 调用应用程序 context 取消所有程序
-		cancel()
-		fmt.Println("signal quit")
-		return nil
+		select {
+		case <-quit:
+			// 调用应用程序 context 取消所有程序
+			cancel()
+			fmt.Println("signal quit")
+			return nil
+		case <-ctx.Done():
+			return nil
+		}
 	})
 
 	if err := moiveErrGroup.Wait(); err != nil {
+		cancel()
 		fmt.Println("影片站点出错了:", err)
 	}
 

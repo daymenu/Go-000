@@ -70,7 +70,7 @@ var moiveSer moivedService
 // AppServe 启动服务
 func AppServe(ctx context.Context) error {
 	s := http.Server{
-		Addr:    ":9091",
+		Addr:    ":9090",
 		Handler: &moiveSer,
 	}
 

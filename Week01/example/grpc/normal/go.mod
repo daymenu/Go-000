@@ -1,4 +1,4 @@
-module github.com/daymenu/Go-000/Week01/example/grpc
+module github.com/daymenu/Go-000/Week01/example/grpc/normal
 
 go 1.15
 

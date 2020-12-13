@@ -1,11 +1,18 @@
 package main
 
 import (
-	"sync/atomic"
+	"fmt"
+	"os"
+	"path/filepath"
 )
 
 func main() {
-	var i int32
-	atomic.AddInt32(&i, 3)
-
+	filepath.Walk("..", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Println("err1", err)
+			return err
+		}
+		fmt.Println(path, info.Size())
+		return nil
+	})
 }

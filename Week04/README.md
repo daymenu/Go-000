@@ -10,6 +10,7 @@
 
 ## 目录
 
+```tree
 ├─api
 │  ├─errcode
 │  └─moive
@@ -27,6 +28,7 @@
 │      └─data
 ├─kit
 └─tools
+```
 
 ## 提交方式
 

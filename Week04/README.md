@@ -10,7 +10,23 @@
 
 ## 目录
 
-目录分层示意图
+├─api
+│  ├─errcode
+│  └─moive
+├─build
+│  └─package
+│      └─mysql
+│          └─conf
+├─cmd
+│  └─moive
+├─config
+├─deployments
+├─internal
+│  └─moive
+│      ├─biz
+│      └─data
+├─kit
+└─tools
 
 ## 提交方式
 

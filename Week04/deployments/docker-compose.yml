@@ -1,0 +1,6 @@
+version: '3'
+services:
+ moive_mysql_service:
+  build: ../build/package/mysql
+  ports: 
+    - "3306:3306"

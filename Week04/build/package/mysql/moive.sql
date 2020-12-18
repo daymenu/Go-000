@@ -1,0 +1,14 @@
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS moive;
+
+use moive;
+
+-- 创建表
+CREATE TABLE IF NOT EXISTS moives
+(
+    `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '影片名',
+    `to_star` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '主演',
+    `love` BIGINT NOT NULL DEFAULT '' COMMENT '喜爱度',
+    INDEX name(name)
+) ENGINE = "InnoDB";

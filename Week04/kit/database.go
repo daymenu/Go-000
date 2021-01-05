@@ -3,7 +3,6 @@ package kit
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"sync"
 
 	// 初始化数据库
@@ -30,9 +29,8 @@ func NewDB(c *DBConfig) (*sql.DB, error) {
 	defer mDBs.Unlock()
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", c.User, c.Password, c.Host, c.Port, c.DBName)
 	db, err := sql.Open("mysql", dataSourceName)
-	log.Println("connect mysql ...")
 	if err != nil {
-		log.Printf("connect mysql[%s] is failed, err:%v", dataSourceName, err)
+		return nil, err
 	}
 	mDBs.dbs[c.DBName] = db
 	return db, err

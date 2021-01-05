@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"net"
@@ -19,12 +20,17 @@ type circularService struct {
 func (c *circularService) Area(ctx context.Context, request *model.AreaRequest) (*model.AreaResponse, error) {
 	resp := new(model.AreaResponse)
 	resp.Code = 200
+	age := request.GetColor()
+	fmt.Println("color:", request.GetColor().GetValue())
+	if age != nil {
+		log.Println(age)
+	}
 	resp.Area = request.Circular.GetRadius() * request.Circular.GetRadius() * math.Pi
 	rjson, err := json.Marshal(request)
 	if err != nil {
 		log.Printf("request json encode failed")
 	}
-	log.Printf("%s:%s", request.RequestId, string(rjson))
+	log.Printf("%s:color[%s]", request.RequestId, string(rjson))
 	return resp, nil
 }
 func newServer() *circularService {

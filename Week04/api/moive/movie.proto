@@ -16,9 +16,13 @@ service MoiveService {
 
 // Moive 定义电影结构体
 message Moive {
-    string name = 1;
-    string url = 2;
-    string image_url = 3;
+    int64 id =1;
+    string name = 2;
+    string url = 3;
+    string image_url = 4;
+    string to_star = 5;
+    int64 love = 6;
+    
 }
 
 // SaveRequest 请求

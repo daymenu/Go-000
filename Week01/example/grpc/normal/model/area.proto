@@ -2,6 +2,8 @@ syntax="proto3";
 
 option go_package = "github.com/daymenu/Go-000/Week01/example/grpc/model";
 
+import "google/protobuf/wrappers.proto";
+
 package model;
 
 // 定义一个圆形服务
@@ -26,6 +28,7 @@ message Circular {
 message AreaRequest {
     string requestId = 1;
     Circular circular = 2;
+    google.protobuf.Int64Value color = 3;
 }
 
 // 定义响应消息

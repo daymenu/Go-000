@@ -1,4 +1,4 @@
-FROM mysql
+FROM mysql:8.0
 
 ADD conf/mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf
 

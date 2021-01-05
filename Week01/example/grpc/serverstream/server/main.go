@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"net"
+	"time"
 
 	"github.com/daymenu/Go-000/Week01/example/grpc/serverstream/model"
 	"google.golang.org/grpc"
@@ -32,6 +33,7 @@ func main() {
 	}
 
 	var opts []grpc.ServerOption
+	opts = append(opts, grpc.ConnectionTimeout(1*time.Second))
 	grpcServer := grpc.NewServer(opts...)
 	log.Println("register area server")
 	model.RegisterCircularServiceServer(grpcServer, new(circularService))

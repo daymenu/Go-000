@@ -28,7 +28,12 @@ func main() {
 	defer cancel()
 	circularPoint := &model.Point{X: 1.1, Y: 1.1}
 	radius := 1.1
-	resp, err := client.Area(ctx, &model.AreaRequest{RequestId: "2233", Circular: &model.Circular{Dot: circularPoint, Radius: radius}})
+
+	resp, err := client.Area(ctx, &model.AreaRequest{
+		RequestId: "2233",
+		Circular:  &model.Circular{Dot: circularPoint, Radius: radius},
+		// Color:     &wrapperspb.Int64Value{Value: 1},
+	})
 
 	if resp.Code != http.StatusOK {
 		fmt.Println(err)
